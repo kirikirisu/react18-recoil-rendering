@@ -35,17 +35,13 @@ const editorSavingScreenVisibleState = atom<boolean>({
 
 // フックの実装
 const useUpdatePressRelease = () => {
-  const [saveStatus, setSaveStatus] = useRecoilState(saveStatusState);
-  const [isSavingScreenVisible, setIsSavingScreenVisible] = useRecoilState(
-    editorSavingScreenVisibleState
-  );
-  const savingStatus = useRecoilValue(saveStatusState);
-  const savingStatusVisible = useRecoilValue(editorSavingScreenVisibleState);
+  // const saveStatus = useRecoilValue(saveStatusState);
+  // const isSavingScreenVisible = useRecoilValue(editorSavingScreenVisibleState);
 
   const updatePressRelease = useRecoilCallback(
-    ({ snapshot: { getPromise } }) =>
+    ({ snapshot: { getPromise }, set }) =>
       async () => {
-        // const isSaving = savingStatus || savingStatusVisible;
+        // const isSaving = saveStatus || isSavingScreenVisible;
 
         const isSaving =
           (await getPromise(saveStatusState)) === "SAVING" ||
@@ -57,8 +53,8 @@ const useUpdatePressRelease = () => {
         }
 
         try {
-          setIsSavingScreenVisible(true);
-          setSaveStatus("SAVING");
+          set(saveStatusState, "SAVING");
+          set(editorSavingScreenVisibleState, true);
 
           // API呼び出しデータの取得
           const {
@@ -74,25 +70,26 @@ const useUpdatePressRelease = () => {
           });
 
           // 成功時の処理
-          setSaveStatus("SAVED");
+          set(saveStatusState, "SAVED");
           console.log("Press release updated successfully!");
         } catch (error) {
           // エラーハンドリング
-          setSaveStatus("ERROR");
+          set(saveStatusState, "ERROR");
           console.error("Failed to update press release:", error);
         } finally {
-          setIsSavingScreenVisible(false);
+          set(editorSavingScreenVisibleState, false);
         }
       }
   );
 
-  return { updatePressRelease, saveStatus, isSavingScreenVisible };
+  return { updatePressRelease };
 };
 
 // デモコンポーネント
 const DemoComponent = () => {
-  const { updatePressRelease, saveStatus, isSavingScreenVisible } =
-    useUpdatePressRelease();
+  const { updatePressRelease } = useUpdatePressRelease();
+  const saveStatus = useRecoilValue(saveStatusState);
+  const isSavingScreenVisible = useRecoilValue(editorSavingScreenVisibleState);
 
   return (
     <div>
