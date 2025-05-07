@@ -1,11 +1,5 @@
-import React from "react";
-import {
-  atom,
-  selector,
-  useRecoilValue,
-  useRecoilState,
-  useRecoilCallback,
-} from "recoil";
+import { atom, selector, useRecoilValue, useRecoilCallback } from "recoil";
+import { waitFor } from "./utils";
 
 // Recoilの状態
 const saveStatusState = atom<string>({
@@ -16,8 +10,8 @@ const saveStatusState = atom<string>({
 const pressReleaseUpdateRequestPayload = selector({
   key: "pressReleaseUpdateRequestPayload",
   get: async () => {
-    // APIからデータを取得するシミュレーション
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await waitFor();
+
     return {
       releaseId: "123",
       updatePressReleaseRequestBody: {
@@ -86,7 +80,7 @@ const useUpdatePressRelease = () => {
 };
 
 // デモコンポーネント
-const DemoComponent = () => {
+export const DemoComponent = () => {
   const { updatePressRelease } = useUpdatePressRelease();
   const saveStatus = useRecoilValue(saveStatusState);
   const isSavingScreenVisible = useRecoilValue(editorSavingScreenVisibleState);
@@ -101,5 +95,3 @@ const DemoComponent = () => {
     </div>
   );
 };
-
-export default DemoComponent;
